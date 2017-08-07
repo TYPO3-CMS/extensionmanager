@@ -1,5 +1,5 @@
 <?php
-namespace TYPO3\CMS\Extensionmanager\Exception;
+namespace TYPO3\CMS\Extensionmanager;
 
 /*
  * This file is part of the TYPO3 CMS project.
@@ -14,11 +14,11 @@ namespace TYPO3\CMS\Extensionmanager\Exception;
  * The TYPO3 project - inspiring people to share!
  */
 
-use TYPO3\CMS\Extensionmanager\Exception;
+use TYPO3\CMS\Core\Exception as CoreException;
 
 /**
- * An exception when something is wrong within the extension manager
+ * A generic Extensionmanager exception
  */
-class ExtensionManagerException extends Exception
+class Exception extends CoreException
 {
 }
