@@ -394,7 +394,8 @@ class DependencyUtility implements SingletonInterface
             $dependency->getIdentifier(),
             $this->availableExtensions[$dependency->getIdentifier()]['packagePath'] ?? ''
         );
-        return $dependency->isVersionCompatible($extensionData['version']);
+        $version = $this->availableExtensions[$dependency->getIdentifier()]['version'] ?? $extensionData['version'] ?: '';
+        return $dependency->isVersionCompatible($version);
     }
 
     /**
