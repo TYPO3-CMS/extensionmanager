@@ -124,7 +124,7 @@ class ActionController extends AbstractController
                     'extensionList.remove.message',
                     'extensionmanager',
                     [
-                        'extension' => $extension,
+                        $extension,
                     ]
                 ) ?? ''
             );
