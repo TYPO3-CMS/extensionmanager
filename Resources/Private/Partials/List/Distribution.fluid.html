@@ -39,9 +39,13 @@
         </p>
     </div>
     <div class="card-footer">
-        <f:form.button form="installDistributionForm" type="submit" name="extension" value="{distribution.uid}" class="btn btn-default t3-button-action-installdistribution">
-            <core:icon identifier="actions-system-extension-import" /> <f:translate key="extensionList.installDistribution">Install</f:translate>
-        </f:form.button>
+        <typo3-extension-toggle-button
+            check-url="{f:uri.action(action: 'checkDistributionDependencies', controller: 'Download', arguments: '{extension: distribution.uid}')}"
+            url="{f:uri.action(action: 'installDistribution', controller: 'Download', arguments: '{extension: distribution.uid}')}"
+            extension-key="{distribution.extensionKey}"
+            label="{f:translate(key: 'extensionList.activate')}"
+            show-label
+        ></typo3-extension-toggle-button>
         <f:link.action action="show" controller="Distribution" arguments="{extension:distribution.uid}" class="btn btn-link">
             <f:translate key="button.details">Show Details</f:translate>
         </f:link.action>

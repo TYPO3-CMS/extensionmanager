@@ -24,13 +24,13 @@ return [
         'extensionName' => 'Extensionmanager',
         'controllerActions' => [
             ListController::class => [
-                'index', 'unresolvedDependencies', 'ter', 'showAllVersions', 'distributions',
+                'index', 'ter', 'showAllVersions', 'distributions',
             ],
             ActionController::class => [
-                'toggleExtensionInstallationState', 'installExtensionWithoutSystemDependencyCheck', 'removeExtension', 'downloadExtensionZip', 'reloadExtensionData',
+                'checkExtensionDependencies', 'toggleExtensionInstallationState', 'installExtensionWithoutSystemDependencyCheck', 'removeExtension', 'downloadExtensionZip', 'reloadExtensionData',
             ],
             DownloadController::class => [
-                'checkDependencies', 'installFromTer', 'installExtensionWithoutSystemDependencyCheck', 'installDistribution', 'updateExtension', 'updateCommentForUpdatableVersions',
+                'checkDependencies', 'checkDistributionDependencies', 'installFromTer', 'installExtensionWithoutSystemDependencyCheck', 'installDistribution', 'installDistributionWithoutDependencyCheck', 'updateExtension', 'updateCommentForUpdatableVersions',
             ],
             UpdateFromTerController::class => [
                 'updateExtensionListFromTer',

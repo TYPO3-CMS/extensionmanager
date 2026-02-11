@@ -31,16 +31,8 @@ use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
  */
 class AbstractController extends ActionController
 {
-    public const TRIGGER_RefreshModuleMenu = 'refreshModuleMenu';
-    public const TRIGGER_RefreshTopbar = 'refreshTopbar';
-
     protected ModuleTemplateFactory $moduleTemplateFactory;
     protected ComponentFactory $componentFactory;
-
-    protected array $triggerArguments = [
-        self::TRIGGER_RefreshModuleMenu,
-        self::TRIGGER_RefreshTopbar,
-    ];
 
     public function injectModuleTemplateFactory(ModuleTemplateFactory $moduleTemplateFactory)
     {
@@ -58,22 +50,6 @@ class AbstractController extends ActionController
     protected function translate(string $key, ?array $arguments = null): string
     {
         return LocalizationUtility::translate($key, 'extensionmanager', $arguments) ?? '';
-    }
-
-    /**
-     * Handles trigger arguments, e.g. refreshing the module menu
-     * widget if an extension with backend modules has been enabled
-     * or disabled.
-     */
-    protected function handleTriggerArguments(ModuleTemplate $view): void
-    {
-        $triggers = [];
-        foreach ($this->triggerArguments as $triggerArgument) {
-            if ($this->request->hasArgument($triggerArgument)) {
-                $triggers[$triggerArgument] = $this->request->getArgument($triggerArgument);
-            }
-        }
-        $view->assign('triggers', $triggers);
     }
 
     /**

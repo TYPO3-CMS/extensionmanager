@@ -173,8 +173,55 @@ class DownloadController extends AbstractController
     }
 
     /**
-     * Action for installing a distribution -
-     * redirects directly to configuration after installing
+     * Check distribution dependencies without changing the installation state.
+     * Returns whether there are unresolved dependency errors for activation.
+     */
+    public function checkDistributionDependenciesAction(int $extension): ResponseInterface
+    {
+        $this->assertAllowedHttpMethod($this->request, 'POST');
+
+        if (!ExtensionManagementUtility::isLoaded('impexp')) {
+            return $this->jsonResponse(json_encode([
+                'installed' => false,
+                'hasDependencyErrors' => false,
+                'error' => $this->translate('extensionList.installImpexp'),
+            ], JSON_THROW_ON_ERROR));
+        }
+
+        $extension = $this->extensionRepository->findByUid($extension);
+
+        try {
+            $dependencyTypes = $this->managementService->getAndResolveDependencies($extension);
+            $dependencyErrors = $this->managementService->getDependencyErrors();
+
+            if (!empty($dependencyErrors)) {
+                return $this->jsonResponse(json_encode([
+                    'installed' => false,
+                    'hasDependencyErrors' => true,
+                    'dependencies' => $dependencyErrors,
+                    'skipDependencyUri' => $this->uriBuilder->reset()->uriFor(
+                        'installDistributionWithoutDependencyCheck',
+                        ['extension' => $extension->uid],
+                        'Download'
+                    ),
+                ], JSON_THROW_ON_ERROR));
+            }
+
+            return $this->jsonResponse(json_encode([
+                'installed' => false,
+                'hasDependencyErrors' => false,
+            ], JSON_THROW_ON_ERROR));
+        } catch (\Exception $e) {
+            return $this->jsonResponse(json_encode([
+                'installed' => false,
+                'hasDependencyErrors' => false,
+                'error' => $e->getMessage(),
+            ], JSON_THROW_ON_ERROR));
+        }
+    }
+
+    /**
+     * Install a distribution from TER.
      */
     public function installDistributionAction(int $extension): ResponseInterface
     {
@@ -182,21 +229,32 @@ class DownloadController extends AbstractController
         $this->assertAllowedHttpMethod($this->request, 'POST');
 
         if (!ExtensionManagementUtility::isLoaded('impexp')) {
-            return (new ForwardResponse('distributions'))->withControllerName('List');
+            return $this->jsonResponse(json_encode([
+                'success' => false,
+                'error' => $this->translate('extensionList.installImpexp'),
+            ], JSON_THROW_ON_ERROR));
         }
-        [$result] = $this->installFromTer($extension);
+
+        [$result, $errorMessages] = $this->installFromTer($extension);
         if (!$result) {
-            return $this->redirect(
-                'unresolvedDependencies',
-                'List',
-                null,
-                [
+            if ($errorMessages !== []) {
+                return $this->jsonResponse(json_encode([
+                    'success' => false,
                     'extensionKey' => $extension->extensionKey,
-                    'returnAction' => ['controller' => 'List', 'action' => 'distributions'],
-                ]
-            );
+                    'dependencies' => $errorMessages,
+                    'skipDependencyUri' => $this->uriBuilder->reset()->uriFor(
+                        'installDistributionWithoutDependencyCheck',
+                        ['extension' => $extension->uid],
+                        'Download'
+                    ),
+                ], JSON_THROW_ON_ERROR));
+            }
+            return $this->jsonResponse(json_encode([
+                'success' => false,
+                'error' => $this->translate('downloadExtension.dependencies.errorTitle'),
+            ], JSON_THROW_ON_ERROR));
         }
-        // FlashMessage that extension is installed
+
         $this->addFlashMessage(
             LocalizationUtility::translate(
                 'distribution.welcome.message',
@@ -206,13 +264,18 @@ class DownloadController extends AbstractController
             LocalizationUtility::translate('distribution.welcome.headline', 'extensionmanager') ?? ''
         );
 
-        // Redirect to show action
-        return $this->redirect(
-            'show',
-            'Distribution',
-            null,
-            ['extension' => $extension]
-        );
+        return $this->jsonResponse(json_encode(['success' => true], JSON_THROW_ON_ERROR));
+    }
+
+    /**
+     * Install a distribution and omit dependency checking.
+     */
+    public function installDistributionWithoutDependencyCheckAction(int $extension): ResponseInterface
+    {
+        $this->assertAllowedHttpMethod($this->request, 'POST');
+
+        $this->managementService->setSkipDependencyCheck(true);
+        return (new ForwardResponse('installDistribution'))->withArguments(['extension' => $extension]);
     }
 
     /**

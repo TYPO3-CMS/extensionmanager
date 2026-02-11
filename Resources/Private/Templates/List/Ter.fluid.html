@@ -1,7 +1,6 @@
 <html
     xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
     xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
-    xmlns:em="http://typo3.org/ns/TYPO3/CMS/Extensionmanager/ViewHelpers"
     data-namespace-typo3-fluid="true"
 >
 
@@ -10,8 +9,6 @@
 <f:section name="Content">
 
     <f:asset.module identifier="@typo3/extensionmanager/main.js"/>
-
-    <em:be.trigger triggers="{triggers}" />
 
     <h1><f:translate key="getExtensions">Get Extensions</f:translate></h1>
     <f:render partial="List/UploadForm" />

@@ -11,8 +11,6 @@
 
     <f:asset.module identifier="@typo3/extensionmanager/main.js"/>
 
-    <em:be.trigger triggers="{triggers}" />
-
     <h1><f:translate key="installedExtensions" /></h1>
     <f:render partial="List/UploadForm" />
     <form>
@@ -108,7 +106,9 @@
                         </f:if>
                     </td>
                     <td data-sort="{f:if(condition: extension.installed, then: 'active', else: 'inactive')}">
-                        <em:toggleExtensionInstallationState extension="{extension}" />
+                        <f:if condition="{extension.toggleUrl}">
+                            <typo3-extension-toggle-button check-url="{extension.checkUrl}" url="{extension.toggleUrl}" extension-key="{extensionKey}" label="{extension.toggleLabel}" {f:if(condition: extension.installed, then: 'installed')}></typo3-extension-toggle-button>
+                        </f:if>
                     </td>
                     <td>
                         <div class="d-flex align-items-center">

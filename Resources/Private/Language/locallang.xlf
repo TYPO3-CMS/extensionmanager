@@ -78,6 +78,9 @@
       <trans-unit id="extensionList.activate">
         <source>Activate</source>
       </trans-unit>
+      <trans-unit id="extensionList.toggleStateConfirmation.reloadMessage">
+        <source>Please note that the backend will be fully reloaded after proceeding.</source>
+      </trans-unit>
       <trans-unit id="extensionList.downloadzip">
         <source>Download as zip</source>
       </trans-unit>
@@ -253,14 +256,13 @@
       </trans-unit>
       <trans-unit id="dependencyCheck.unresolvedDependencies.message">
         <source><![CDATA[
-          If you continue installing the extension, all dependency checks will be turned off.
+          <p>If you continue activating the extension, all dependency checks will be turned off.</p>
           <ul>
             <li>Required extensions are tried to be fetched from TER (if they do not yet exist in the system)</li>
             <li>Version dependency checks are skipped</li>
           </ul>
           <strong>
-            Be aware that an installation without dependency checks may turn your installation unusable.<br />
-            In such a case manual intervention is required.
+            Be aware that activating an extension without dependency checks may turn your TYPO3 installation unusable. In such a case manual intervention is required.
           </strong>
 				]]></source>
       </trans-unit>
@@ -268,10 +270,10 @@
         <source>Are you sure you want to proceed?</source>
       </trans-unit>
       <trans-unit id="dependencyCheck.unresolvedDependencies.proceed">
-        <source>Install the extension</source>
+        <source>Activate the extension</source>
       </trans-unit>
       <trans-unit id="dependencyCheck.headline">
-        <source>The following errors were found while trying to install "%s"</source>
+        <source>The following errors were found while trying to activate "%s"</source>
       </trans-unit>
       <trans-unit id="dependencyCheck.requiredExtension">
         <source>Required extension "%s"</source>
@@ -288,8 +290,14 @@
       <trans-unit id="downloadExtension.dependencies.resolveAutomatically">
         <source>Shall these dependencies be resolved automatically?</source>
       </trans-unit>
-      <trans-unit id="downloadExtension.dependencies.errorTitle">
+      <trans-unit id="downloadExtension.dependencies.errorTitle" x-unused-since="14.0">
         <source>Dependencies could not be resolved</source>
+      </trans-unit>
+      <trans-unit id="dependencyCheck.modalTitle.activate">
+        <source>Activate Extension "%s"</source>
+      </trans-unit>
+      <trans-unit id="dependencyCheck.modalTitle.deactivate">
+        <source>Deactivate Extension "%s"</source>
       </trans-unit>
       <trans-unit id="downloadExtension.dependencies.errorMessage">
         <source>The dependencies of the following Extensions could not be resolved</source>
@@ -310,10 +318,10 @@
         <source>Download Error</source>
       </trans-unit>
       <trans-unit id="extensionList.dependenciesResolveInstallError.title">
-        <source>Install Error</source>
+        <source>Activation Error</source>
       </trans-unit>
       <trans-unit id="extensionList.dependenciesResolveInstallError.message">
-        <source>Your installation failed while resolving dependencies.</source>
+        <source>Activation failed while resolving dependencies.</source>
       </trans-unit>
       <trans-unit id="extensionList.dependenciesResolveDownloadSuccess.message">
         <source>Your installation of {0} was successful.</source>
@@ -420,7 +428,7 @@
       <trans-unit id="distributions">
         <source>Get preconfigured distribution</source>
       </trans-unit>
-      <trans-unit id="extensionList.installDistribution">
+      <trans-unit id="extensionList.installDistribution" x-unused-since="14.2">
         <source>Install</source>
       </trans-unit>
       <trans-unit id="extensionList.installImpexp">

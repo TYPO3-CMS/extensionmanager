@@ -1,6 +1,5 @@
 <html
     xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
-    xmlns:em="http://typo3.org/ns/TYPO3/CMS/Extensionmanager/ViewHelpers"
     data-namespace-typo3-fluid="true"
 >
 
@@ -9,8 +8,6 @@
 <f:section name="Content">
 
     <f:asset.module identifier="@typo3/extensionmanager/main.js"/>
-
-    <em:be.trigger triggers="{triggers}" />
 
     <div class="distribution-detail">
         <div class="distribution-detail-previewpane">
@@ -27,15 +24,17 @@
                 <p>{extension.description}</p>
             </div>
 
-            <f:form id="installDistributionForm" action="installDistribution" controller="Download"></f:form>
-
             <ul class="distribution-detail-actions">
                 <f:if condition="{distributionActive}">
                     <f:else>
                         <li>
-                            <f:form.button form="installDistributionForm" type="submit" name="extension" value="{extension.uid}" class="btn btn-default t3-button-action-installdistribution">
-                                <core:icon identifier="actions-system-extension-import" /> <f:translate key="extensionList.installDistribution">Install</f:translate>
-                            </f:form.button>
+                            <typo3-extension-toggle-button
+                                check-url="{f:uri.action(action: 'checkDistributionDependencies', controller: 'Download', arguments: '{extension: extension.uid}')}"
+                                url="{f:uri.action(action: 'installDistribution', controller: 'Download', arguments: '{extension: extension.uid}')}"
+                                extension-key="{extension.extensionKey}"
+                                label="{f:translate(key: 'extensionList.activate')}"
+                                show-label
+                            ></typo3-extension-toggle-button>
                         </li>
                     </f:else>
                     <f:then>

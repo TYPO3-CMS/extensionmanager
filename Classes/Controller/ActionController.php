@@ -52,6 +52,50 @@ class ActionController extends AbstractController
     ) {}
 
     /**
+     * Check extension dependencies without changing the installation state.
+     * Returns whether the extension is currently installed and whether there
+     * are unresolved dependency errors for activation.
+     */
+    protected function checkExtensionDependenciesAction(string $extensionKey): ResponseInterface
+    {
+        $this->assertAllowedHttpMethod($this->request, 'POST');
+
+        try {
+            $this->assertComposerMode();
+            $installedExtensions = ExtensionManagementUtility::getLoadedExtensionListArray();
+            $isInstalled = in_array($extensionKey, $installedExtensions);
+
+            if (!$isInstalled) {
+                $extension = Extension::createFromExtensionArray(
+                    $this->installUtility->enrichExtensionWithDetails($extensionKey, false)
+                );
+                $this->managementService->getAndResolveDependencies($extension);
+                $dependencyErrors = $this->managementService->getDependencyErrors();
+
+                if (!empty($dependencyErrors)) {
+                    return $this->jsonResponse(json_encode([
+                        'installed' => false,
+                        'hasDependencyErrors' => true,
+                        'dependencies' => $dependencyErrors,
+                        'skipDependencyUri' => $this->uriBuilder->reset()->setFormat('json')->uriFor(
+                            'installExtensionWithoutSystemDependencyCheck',
+                            ['extensionKey' => $extensionKey],
+                            'Action'
+                        ),
+                    ], JSON_THROW_ON_ERROR));
+                }
+            }
+
+            return $this->jsonResponse(json_encode([
+                'installed' => $isInstalled,
+                'hasDependencyErrors' => false,
+            ], JSON_THROW_ON_ERROR));
+        } catch (ExtensionManagerException $e) {
+            return $this->jsonResponse(json_encode(['error' => $e->getMessage()], JSON_THROW_ON_ERROR));
+        }
+    }
+
+    /**
      * Toggle extension installation state action
      */
     protected function toggleExtensionInstallationStateAction(string $extensionKey): ResponseInterface
@@ -59,37 +103,31 @@ class ActionController extends AbstractController
         $this->assertAllowedHttpMethod($this->request, 'POST');
 
         try {
-            if (Environment::isComposerMode()) {
-                throw new ExtensionManagerException(
-                    'The system is set to composer mode. You are not allowed to activate or deactivate any extension.',
-                    1629922856
-                );
-            }
+            $this->assertComposerMode();
             $installedExtensions = ExtensionManagementUtility::getLoadedExtensionListArray();
             if (in_array($extensionKey, $installedExtensions)) {
-                // uninstall
                 $this->installUtility->uninstall($extensionKey);
             } else {
-                // install
                 $extension = Extension::createFromExtensionArray(
                     $this->installUtility->enrichExtensionWithDetails($extensionKey, false)
                 );
                 if ($this->managementService->installExtension($extension) === false) {
-                    return (new ForwardResponse('unresolvedDependencies'))
-                        ->withControllerName('List')
-                        ->withArguments([
-                            'extensionKey' => $extensionKey,
-                            'returnAction' => ['controller' => 'List', 'action' => 'index'],
-                        ]);
+                    return $this->jsonResponse(json_encode([
+                        'success' => false,
+                        'dependencies' => $this->managementService->getDependencyErrors(),
+                        'skipDependencyUri' => $this->uriBuilder->reset()->setFormat('json')->uriFor(
+                            'installExtensionWithoutSystemDependencyCheck',
+                            ['extensionKey' => $extensionKey],
+                            'Action'
+                        ),
+                    ], JSON_THROW_ON_ERROR));
                 }
             }
         } catch (ExtensionManagerException|PackageStatesFileNotWritableException $e) {
-            $this->addFlashMessage($e->getMessage(), '', ContextualFeedbackSeverity::ERROR);
+            return $this->jsonResponse(json_encode(['success' => false, 'error' => $e->getMessage()], JSON_THROW_ON_ERROR));
         }
-        return $this->redirect('index', 'List', null, [
-            self::TRIGGER_RefreshModuleMenu => true,
-            self::TRIGGER_RefreshTopbar => true,
-        ]);
+
+        return $this->jsonResponse(json_encode(['success' => true], JSON_THROW_ON_ERROR));
     }
 
     /**
@@ -231,5 +269,15 @@ class ActionController extends AbstractController
 
         $zip->close();
         return $fileName;
+    }
+
+    protected function assertComposerMode(): void
+    {
+        if (Environment::isComposerMode()) {
+            throw new ExtensionManagerException(
+                'The system is set to composer mode. You are not allowed to activate or deactivate any extension.',
+                1629922856
+            );
+        }
     }
 }

@@ -126,17 +126,10 @@ class UploadExtensionFileController extends AbstractController
                         ''
                     );
                 } else {
-                    return $this->redirect(
-                        'unresolvedDependencies',
-                        'List',
-                        null,
-                        [
-                            'extensionKey' => $extensionKey,
-                            'returnAction' => ['controller' => 'List', 'action' => 'index'],
-                        ],
-                        null,
-                        null,
-                        307,
+                    $this->addFlashMessage(
+                        $this->translate('extensionList.dependenciesResolveInstallError.message'),
+                        $this->translate('extensionList.dependenciesResolveInstallError.title'),
+                        ContextualFeedbackSeverity::WARNING
                     );
                 }
             }
@@ -148,10 +141,7 @@ class UploadExtensionFileController extends AbstractController
             }
             $this->addFlashMessage($exception->getMessage(), '', ContextualFeedbackSeverity::ERROR);
         }
-        return $this->redirect('index', 'List', null, [
-            self::TRIGGER_RefreshModuleMenu => true,
-            self::TRIGGER_RefreshTopbar => true,
-        ]);
+        return $this->redirect('index', 'List');
     }
 
     /**

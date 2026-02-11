@@ -51,6 +51,7 @@ class DistributionController extends AbstractController
         $view->assign('distributionActive', $active);
         $view->assign('extension', $extension);
         $this->pageRenderer->loadJavaScriptModule('@typo3/extensionmanager/distribution-image.js');
+        $this->pageRenderer->addInlineLanguageLabelFile('EXT:extensionmanager/Resources/Private/Language/locallang.xlf');
         return $view->renderResponse('Distribution/Show');
     }
 }
