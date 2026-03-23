@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace TYPO3\CMS\Extensionmanager\Controller;
 
 use Psr\Http\Message\ResponseInterface;
+use TYPO3\CMS\Backend\Template\Enum\ModuleLayout;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
@@ -139,6 +140,7 @@ class ListController extends AbstractController
         $this->addComposerModeNotification();
         $importExportInstalled = ExtensionManagementUtility::isLoaded('impexp');
         $view = $this->initializeModuleTemplate($this->request);
+        $view->setLayout(ModuleLayout::NORMAL);
         if ($importExportInstalled) {
             try {
                 foreach ($this->remoteRegistry->getListableRemotes() as $remote) {
